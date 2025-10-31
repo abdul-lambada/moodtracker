@@ -15,7 +15,7 @@ use App\Models\MoodRepository;
 if (!AuthManager::check()) {
     session_put('__auth_redirect', $_SERVER['REQUEST_URI'] ?? '/mood/create.php');
     flash('errors', ['Silakan masuk terlebih dahulu untuk mencatat mood.']);
-    redirect('../auth/login.php');
+    redirect('../auth/login_employee.php');
 }
 
 $currentUser = AuthManager::user();
