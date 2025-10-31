@@ -34,6 +34,9 @@ class Connection
 
         try {
             self::$pdo = new PDO($dsn, $config['username'], $config['password'], $config['options']);
+            // Ensure connection truly uses utf8mb4 on environments where DSN charset is ignored
+            // This is important for storing and reading emoji characters correctly
+            self::$pdo->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
         } catch (PDOException $e) {
             throw new RuntimeException('Failed to connect to database: ' . $e->getMessage(), (int) $e->getCode(), $e);
         }
