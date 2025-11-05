@@ -234,11 +234,17 @@ $fieldsetDisabledAttr = $alreadySubmitted ? 'disabled' : '';
                     <span class="block text-xs font-semibold text-mood-muted uppercase tracking-wide">Output Harian</span>
                     <p class="text-xs text-mood-muted mt-1">Pilih pencapaian hari ini terhadap target.</p>
                     <?php $outputOptions = ['Sesuai Target', 'Di Bawah Target', 'Di Atas Target']; ?>
+                    <?php $outputEmojis = [
+                        'Sesuai Target' => '🎯',
+                        'Di Bawah Target' => '📉',
+                        'Di Atas Target' => '📈',
+                    ]; ?>
                     <?php $selectedOutput = $oldInput['output_harian'] ?? $outputOptions[0]; ?>
                     <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <?php foreach ($outputOptions as $idx => $opt): ?>
                             <label class="js-output-option mood-emoji-bubble relative flex items-center gap-3 rounded-2xl border <?php echo $selectedOutput === $opt ? 'border-mood-primary bg-mood-primary/5 emoji-active' : 'border-mood-border bg-mood-surface'; ?> px-4 py-2.5 cursor-pointer transition" data-output="<?php echo htmlspecialchars($opt); ?>" data-index="<?php echo $idx; ?>">
                                 <input type="radio" name="output_harian" value="<?php echo htmlspecialchars($opt); ?>" class="sr-only" <?php echo $selectedOutput === $opt ? 'checked' : ''; ?> required>
+                                <span class="text-xl"><?php echo htmlspecialchars($outputEmojis[$opt] ?? '🎯'); ?></span>
                                 <span class="text-sm font-medium text-mood-ink"><?php echo htmlspecialchars($opt); ?></span>
                             </label>
                         <?php endforeach; ?>

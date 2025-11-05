@@ -193,7 +193,21 @@ $buildPageUrl = static function (int $targetPage) use ($filterParams) {
                         <?php if (!empty($item['catatan_mood'])): ?>
                             <p class="text-sm text-mood-ink">Catatan: <?php echo nl2br(htmlspecialchars($item['catatan_mood'])); ?></p>
                         <?php endif; ?>
-                        <p class="text-xs text-mood-muted">Output: <?php echo nl2br(htmlspecialchars($item['output_harian'] ?? '-')); ?></p>
+                        <?php
+                            $outputEmojis = [
+                                'Sesuai Target' => '🎯',
+                                'Di Bawah Target' => '📉',
+                                'Di Atas Target' => '📈',
+                            ];
+                            $out = $item['output_harian'] ?? '-';
+                            $emoji = $outputEmojis[$out] ?? '';
+                        ?>
+                        <div class="text-xs">
+                            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-mood-border text-mood-ink bg-mood-surface">
+                                <span class="text-base leading-none"><?php echo htmlspecialchars($emoji); ?></span>
+                                <span><?php echo htmlspecialchars($out); ?></span>
+                            </span>
+                        </div>
                     </article>
                 <?php endforeach; ?>
             <?php endif; ?>
