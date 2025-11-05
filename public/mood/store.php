@@ -56,8 +56,12 @@ if ($payload['mood'] !== '' && !in_array($payload['mood'], $allowedMoods, true))
     $errors[] = 'Mood yang dipilih tidak valid.';
 }
 
+// Validate fixed choices for output harian
+$allowedOutputs = ['Sesuai Target', 'Di Bawah Target', 'Di Atas Target'];
 if ($payload['output_harian'] === '') {
-    $errors[] = 'Output harian wajib diisi.';
+    $errors[] = 'Output harian wajib dipilih.';
+} elseif (!in_array($payload['output_harian'], $allowedOutputs, true)) {
+    $errors[] = 'Pilihan output harian tidak valid.';
 }
 
 if ($payload['tanggal_catatan'] !== '') {

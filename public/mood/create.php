@@ -231,15 +231,18 @@ $fieldsetDisabledAttr = $alreadySubmitted ? 'disabled' : '';
                 </div>
 
                 <div>
-                    <label for="output_harian" class="block text-xs font-semibold text-mood-muted uppercase tracking-wide">Output Harian</label>
-                    <textarea
-                        id="output_harian"
-                        name="output_harian"
-                        rows="4"
-                        class="mt-2 w-full rounded-2xl border border-mood-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-mood-primary"
-                        placeholder="Aktivitas utama yang dilakukan"
-                        required
-                    ><?php echo htmlspecialchars($oldInput['output_harian'] ?? ''); ?></textarea>
+                    <span class="block text-xs font-semibold text-mood-muted uppercase tracking-wide">Output Harian</span>
+                    <p class="text-xs text-mood-muted mt-1">Pilih pencapaian hari ini terhadap target.</p>
+                    <?php $outputOptions = ['Sesuai Target', 'Di Bawah Target', 'Di Atas Target']; ?>
+                    <?php $selectedOutput = $oldInput['output_harian'] ?? $outputOptions[0]; ?>
+                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <?php foreach ($outputOptions as $idx => $opt): ?>
+                            <label class="js-output-option mood-emoji-bubble relative flex items-center gap-3 rounded-2xl border <?php echo $selectedOutput === $opt ? 'border-mood-primary bg-mood-primary/5 emoji-active' : 'border-mood-border bg-mood-surface'; ?> px-4 py-2.5 cursor-pointer transition" data-output="<?php echo htmlspecialchars($opt); ?>" data-index="<?php echo $idx; ?>">
+                                <input type="radio" name="output_harian" value="<?php echo htmlspecialchars($opt); ?>" class="sr-only" <?php echo $selectedOutput === $opt ? 'checked' : ''; ?> required>
+                                <span class="text-sm font-medium text-mood-ink"><?php echo htmlspecialchars($opt); ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-3">
@@ -283,6 +286,28 @@ $fieldsetDisabledAttr = $alreadySubmitted ? 'disabled' : '';
             option.addEventListener('click', function () {
                 activateOption(this);
             });
+        });
+    })();
+
+    // Output selector behavior (separate from mood)
+    (function () {
+        const outputs = document.querySelectorAll('.js-output-option');
+        if (!outputs.length) return;
+
+        function activate(target) {
+            outputs.forEach(el => {
+                el.classList.remove('border-mood-primary', 'bg-mood-primary/5', 'emoji-active');
+                el.classList.add('border-mood-border', 'bg-mood-surface');
+            });
+
+            target.classList.remove('border-mood-border', 'bg-mood-surface');
+            target.classList.add('border-mood-primary', 'bg-mood-primary/5', 'emoji-active');
+            const radio = target.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+        }
+
+        outputs.forEach(el => {
+            el.addEventListener('click', function () { activate(this); });
         });
     })();
 </script>
