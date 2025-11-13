@@ -9,8 +9,20 @@ require_once dirname(__DIR__, 2) . '/bootstrap/autoload.php';
 
 use App\Models\MoodRepository;
 use App\Models\UserRepository;
+use App\Support\AuthManager;
 
-$userId = isset($_GET['user']) ? (int) $_GET['user'] : null;
+if (!AuthManager::check()) {
+    session_put('__auth_redirect', $_SERVER['REQUEST_URI'] ?? '/mood/history.php');
+    flash('errors', ['Silakan masuk terlebih dahulu untuk melihat riwayat mood.']);
+    redirect('../auth/login_employee.php');
+}
+
+$currentUser = AuthManager::user();
+$userId = (int) ($currentUser['id_user'] ?? 0);
+if ($userId <= 0) {
+    flash('errors', ['Data pengguna tidak valid. Silakan masuk kembali.']);
+    redirect('../auth/login_employee.php');
+}
 $date = isset($_GET['date']) ? trim($_GET['date']) : null;
 $page = isset($_GET['page']) ? max((int) $_GET['page'], 1) : 1;
 $perPage = 5;
@@ -19,8 +31,8 @@ if ($date !== null && $date !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date
     $date = null;
 }
 
-$users = UserRepository::all();
-$paginationResult = MoodRepository::filterPaginated($userId ?: null, $date ?: null, $page, $perPage);
+$users = [$currentUser];
+$paginationResult = MoodRepository::filterPaginated($userId, $date ?: null, $page, $perPage);
 $moods = $paginationResult['data'];
 
 if ($page > $paginationResult['last_page'] && $paginationResult['last_page'] > 0) {
@@ -156,15 +168,11 @@ $buildPageUrl = static function (int $targetPage) use ($filterParams) {
         <form method="GET" class="bg-mood-surface border border-mood-border rounded-3xl shadow-sm p-5 grid grid-cols-1 md:grid-cols-4 gap-4 page-enter-delay filter-card">
             <input type="hidden" name="page" value="1">
             <div class="md:col-span-2">
-                <label for="user" class="text-xs font-semibold text-mood-muted uppercase tracking-wide">Karyawan</label>
-                <select id="user" name="user" class="mt-2 w-full rounded-2xl border border-mood-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-mood-primary">
-                    <option value="">Semua karyawan</option>
-                    <?php foreach ($users as $user): ?>
-                        <option value="<?php echo (int) $user['id_user']; ?>" <?php echo ($userId === (int) $user['id_user']) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($user['nama_karyawan']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <label class="text-xs font-semibold text-mood-muted uppercase tracking-wide">Karyawan</label>
+                <input type="hidden" name="user" value="<?php echo $userId; ?>">
+                <div class="mt-2 w-full rounded-2xl border border-mood-border px-4 py-2.5 text-sm bg-mood-surface text-mood-ink">
+                    <?php echo htmlspecialchars($currentUser['nama_karyawan'] ?? '-'); ?>
+                </div>
             </div>
             <div>
                 <label for="date" class="text-xs font-semibold text-mood-muted uppercase tracking-wide">Tanggal</label>
