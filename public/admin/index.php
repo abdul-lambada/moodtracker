@@ -23,6 +23,7 @@ $moodStats = MoodRepository::statsByMood();
 $dailyTrend = MoodRepository::dailyTrend(14);
 $latestAudits = AuditRepository::latest(5);
 $latestEntries = MoodRepository::latest(5);
+$moodColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'];
 
 ?><!DOCTYPE html>
 <html lang="en">
@@ -167,9 +168,9 @@ $latestEntries = MoodRepository::latest(5);
                                         <canvas id="moodChart"></canvas>
                                     </div>
                                     <div class="mt-4 text-center small">
-                                        <?php foreach ($moodStats as $stat): ?>
+                                        <?php foreach ($moodStats as $index => $stat): ?>
                                             <span class="mr-2">
-                                                <i class="fas fa-circle text-primary"></i> <?php echo htmlspecialchars($stat['mood']); ?> (<?php echo (int) $stat['total']; ?>)
+                                                <i class="fas fa-circle" style="color: <?php echo $moodColors[$index % count($moodColors)]; ?>;"></i> <?php echo htmlspecialchars($stat['mood']); ?> (<?php echo (int) $stat['total']; ?>)
                                             </span>
                                         <?php endforeach; ?>
                                         <?php if (count($moodStats) === 0): ?>
@@ -297,13 +298,14 @@ $latestEntries = MoodRepository::latest(5);
         const moodValues = moodStats.map(item => parseInt(item.total, 10));
 
         const ctxMood = document.getElementById('moodChart');
+        const moodColors = <?php echo json_encode($moodColors, JSON_THROW_ON_ERROR); ?>;
         new Chart(ctxMood, {
             type: 'doughnut',
             data: {
                 labels: moodLabels,
                 datasets: [{
                     data: moodValues,
-                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
+                    backgroundColor: moodColors,
                 }]
             },
             options: {
